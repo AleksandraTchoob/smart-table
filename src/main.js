@@ -1,8 +1,6 @@
 import "./fonts/ys-display/fonts.css";
 import "./style.css";
 
-import { data as sourceData } from "./data/dataset_1.js";
-
 import { initData } from "./data.js";
 import { processFormData } from "./lib/utils.js";
 
@@ -14,7 +12,7 @@ import { initFiltering } from "./components/filtering.js";
 import { initPagination } from "./components/pagination.js";
 
 // Исходные данные используемые в render()
-const api = initData(sourceData);
+const api = initData();
 
 /**
  * Сбор и обработка полей из таблицы
@@ -81,11 +79,21 @@ const applySorting = initSorting([
 
 const applySearching = initSearching(sampleTable.search.elements, "search");
 
+let applyFiltering, updateIndexes;
+
 const appRoot = document.querySelector("#app");
 appRoot.appendChild(sampleTable.container);
 
 async function init() {
   const indexes = await api.getIndexes();
+
+  ({ applyFiltering, updateIndexes } = initFiltering(
+  sampleTable.filter.elements,
+  {
+    // передаём элементы фильтра
+    searchBySeller: indexes.sellers, // для элемента с именем searchBySeller устанавливаем массив продавцов
+  }
+  ));
 
   updateIndexes(sampleTable.filter.elements, {
     searchBySeller: indexes.sellers,
@@ -93,11 +101,3 @@ async function init() {
 }
 
 init().then(render);
-
-const { applyFiltering, updateIndexes } = initFiltering(
-  sampleTable.filter.elements,
-  {
-    // передаём элементы фильтра
-    searchBySeller: indexes.sellers, // для элемента с именем searchBySeller устанавливаем массив продавцов
-  }
-);

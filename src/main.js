@@ -77,23 +77,17 @@ const applySorting = initSorting([
   sampleTable.header.elements.sortByTotal,
 ]);
 
-const applySearching = initSearching(sampleTable.search.elements, "search");
+const { applyFiltering, updateIndexes } = initFiltering(
+  sampleTable.filter.elements
+);
 
-let applyFiltering, updateIndexes;
+const applySearching = initSearching(sampleTable.search.elements);
 
 const appRoot = document.querySelector("#app");
 appRoot.appendChild(sampleTable.container);
 
 async function init() {
   const indexes = await api.getIndexes();
-
-  ({ applyFiltering, updateIndexes } = initFiltering(
-  sampleTable.filter.elements,
-  {
-    // передаём элементы фильтра
-    searchBySeller: indexes.sellers, // для элемента с именем searchBySeller устанавливаем массив продавцов
-  }
-  ));
 
   updateIndexes(sampleTable.filter.elements, {
     searchBySeller: indexes.sellers,

@@ -14,19 +14,16 @@ export function initFiltering(elements) {
 
   const applyFiltering = (query, state, action) => {
     // код с обработкой очистки поля
-    if (action && action.type === "click" && action.target.name === "clear") {
-      const button = action.target;
-      const fieldName = button.dataset.field;
-      const filterWrapper = button.closest(".filter-wrapper");
-      if (filterWrapper) {
-        const input = filterWrapper.querySelector("input");
+    document.addEventListener('click', (e) => {
+      if (e.target.name === 'clear') {
+        e.preventDefault();
+        const input = e.target.closest(".filter-wrapper")?.querySelector("input");
         if (input) {
           input.value = ""; // сбрасываем значение поля
-          state[fieldName] = ""; // сбрасываем значение в состоянии
+          e.target.closest('form')?.dispatchEvent(new Event('submit', { cancelable: true }));
         }
       }
-    }
-
+    });
     // @todo: #4.5 — отфильтровать данные, используя компаратор
     const filter = {};
     Object.keys(elements).forEach((key) => {

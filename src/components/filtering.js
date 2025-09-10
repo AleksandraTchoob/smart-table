@@ -14,16 +14,32 @@ export function initFiltering(elements) {
 
   const applyFiltering = (query, state, action) => {
     // код с обработкой очистки поля
-    document.addEventListener('click', (e) => {
-      if (e.target.name === 'clear') {
-        e.preventDefault();
-        const input = e.target.closest(".filter-wrapper")?.querySelector("input");
+    if (action) {
+      const button = action.target || action;
+      if (button && button.name === "clear") {
+        const fieldName = button.getAttribute("data-field"); // "date" или "customer"
+        // ищем ближайший контейнер фильтра и внутри него input/select
+        let filterWrapper = button.parentElement;
+        // на всякий случай поднимемся до ближайшей колонки, если в filterWrapper не нашли
+        const input =
+          (filterWrapper && filterWrapper.querySelector && filterWrapper.querySelector("input, select")) ||
+          (button.closest && button.closest(".table-column") && button.closest(".table-column").querySelector("input, select"));
         if (input) {
           input.value = ""; // сбрасываем значение поля
-          e.target.closest('form')?.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+        // синхронизируем state: сбрасываем значение в состоянии
+        if (fieldName && state && typeof state === "object") {
+          if (
+            state.filters && Object.prototype.hasOwnProperty.call(state.filters, fieldName)
+          ) {
+            state.filters[fieldName] = "";
+          } else {
+            state[fieldName] = "";
+          }
         }
       }
-    });
+    }
+
     // @todo: #4.5 — отфильтровать данные, используя компаратор
     const filter = {};
     Object.keys(elements).forEach((key) => {
